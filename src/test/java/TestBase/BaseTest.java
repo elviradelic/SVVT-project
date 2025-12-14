@@ -28,7 +28,7 @@ import java.util.Optional;
 @ExtendWith(BaseTest.ScreenshotOnFailureExtension.class)
 @ExtendWith(AllureJunit5.class)
 public abstract class BaseTest {
-    private static boolean headless = true;
+    private static boolean headless = false;
     protected WebDriver driver;
 
     @BeforeAll

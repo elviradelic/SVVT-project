@@ -1,12 +1,17 @@
 package pages;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.openqa.selenium.WebDriver;
 
-@AllArgsConstructor
-public class HomePage {
-    private final WebDriver driver;
+
+
+public class HomePage extends BasePage{
     private final String baseUrl = "https://www.bigbang.ba/";
+
+    public HomePage(WebDriver driver) {
+        super(driver);
+    }
 
 
     public HomePage open() {
