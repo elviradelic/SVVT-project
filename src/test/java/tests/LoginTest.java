@@ -4,6 +4,7 @@ import TestBase.BaseTest;
 import TestBase.Factory.TestDataFactory;
 import TestBase.Factory.TestUser;
 import io.qameta.allure.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import pages.AccountPage;
@@ -14,6 +15,27 @@ import static org.junit.jupiter.api.Assertions.*;
 @Epic("E-Commerce")
 @Feature("User Authentication")
 public class LoginTest extends BaseTest {
+
+    @BeforeEach
+    public void ensureLoggedOut() {
+        // clear client-side session state
+        driver.manage().deleteAllCookies();
+
+        // open login page; if app redirects because server session still exists, try logging out
+        LoginPage loginPage = new LoginPage(driver).open();
+        if (!loginPage.isLoaded()) {
+            try {
+                // if redirected to account page, call logout and reopen login page
+                AccountPage account = new AccountPage(driver);
+                account.logout();
+                driver.manage().deleteAllCookies();
+                new LoginPage(driver).open();
+            } catch (Exception ignored) {
+                System.out.println(ignored.getMessage());
+            }
+        }
+    }
+
 
     @Test
     @Story("Successful Login")
@@ -39,9 +61,12 @@ public class LoginTest extends BaseTest {
     @Description("Logged-in user can log out")
     @Severity(SeverityLevel.NORMAL)
     public void userCanLogout() {
+        System.out.println("Starting logout test...");
+
         TestUser user = TestDataFactory.validTestUser();
 
-        AccountPage accountPage = new LoginPage(driver)
+        LoginPage loginPage1 = new LoginPage(driver);
+        AccountPage accountPage = loginPage1
                 .open()
                 .login(user.getEmail(), user.getPassword());
 

@@ -9,7 +9,7 @@
          private static final String PAGE_URL = "https://www.bigbang.ba/customer/account/login/";
 
          // Locators (all in one place, easy to maintain)
-         private final By emailInput = By.cssSelector("input[type='email']");
+         private final By emailInput = By.cssSelector("#email");
          private final By passwordInput = By.cssSelector("input[type='password']");
          private final By loginButton = By.cssSelector("button[type='submit']");
          private final By errorMessage = By.cssSelector(".message-error");
@@ -23,7 +23,7 @@
          // Navigation
          public LoginPage open() {
              driver.get(PAGE_URL);
-             waitForElement(emailInput); // Wait for page to load
+             waitForVisibility(emailInput); // Wait for page to load
              return this; // Return 'this' for method chaining
          }
 
@@ -70,7 +70,7 @@
          // Validation methods
          public boolean isLoaded() {
              return driver.getCurrentUrl().contains("/customer/account/login/")
-                     && isElementVisible(emailInput);
+                     && waitForVisibility(emailInput).isDisplayed();
          }
 
          public String getErrorMessage() {

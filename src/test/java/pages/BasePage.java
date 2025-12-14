@@ -20,7 +20,12 @@ package pages;
 
          // Reusable wait methods
          protected WebElement waitForElement(By locator) {
-             return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+             return waitForVisibility(locator);
+         }
+
+         // convenience overload with default timeout
+         protected WebElement waitForVisibility(By locator) {
+             return waitForVisibility(locator, 5);
          }
 
          protected WebElement waitForClickable(By locator) {
@@ -57,9 +62,19 @@ package pages;
 
          public boolean isElementVisible(By locator) {
              try {
-                 return waitForElement(locator).isDisplayed();
+                 return waitForVisibility(locator).isDisplayed();
              } catch (Exception e) {
                  return false;
+             }
+         }
+
+         // Wait for visibility and return the element or null on timeout (safe)
+         protected WebElement waitForVisibility(By locator, long timeoutSeconds) {
+             try {
+                 return new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds))
+                         .until(ExpectedConditions.visibilityOfElementLocated(locator));
+             } catch (TimeoutException e) {
+                 return null;
              }
          }
      }
