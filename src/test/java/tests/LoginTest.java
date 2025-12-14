@@ -18,22 +18,7 @@ public class LoginTest extends BaseTest {
 
     @BeforeEach
     public void ensureLoggedOut() {
-        // clear client-side session state
-        driver.manage().deleteAllCookies();
-
-        // open login page; if app redirects because server session still exists, try logging out
-        LoginPage loginPage = new LoginPage(driver).open();
-        if (!loginPage.isLoaded()) {
-            try {
-                // if redirected to account page, call logout and reopen login page
-                AccountPage account = new AccountPage(driver);
-                account.logout();
-                driver.manage().deleteAllCookies();
-                new LoginPage(driver).open();
-            } catch (Exception ignored) {
-                System.out.println(ignored.getMessage());
-            }
-        }
+        clearCookiesAndLogoOut();
     }
 
 
