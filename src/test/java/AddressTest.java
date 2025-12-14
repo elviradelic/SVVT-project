@@ -25,6 +25,16 @@ public class AddressTest extends BaseTest {
     // No need for @BeforeAll - inherited from BaseTest
     // Driver is automatically initialized in BaseTest.beforeAll()
 
+    @AfterEach
+    public void delayBetweenTests() {
+        clearCookiesAndLogoOut();
+        try {
+            Thread.sleep(3000); // brief pause between tests
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     @Test
     @Story("Check login page navigation")
     @Description("User should be able to navigate to the login page from the homepage")
@@ -33,87 +43,102 @@ public class AddressTest extends BaseTest {
     @Order(1)
 
     public void openLogin() throws InterruptedException{
+        System.out.println("[AddressTest] Starting openLogin test");
         driver.get("https://www.bigbang.ba/");
         driver.manage().window().maximize();
         Thread.sleep(3000);
 
         String currentUrl = driver.getCurrentUrl();
-        System.out.println("We are currently at : " + currentUrl);
-        //assertEquals("https://www.bigbang.ba/customer/account/login/",currentUrl);
+        System.out.println("[AddressTest] We are currently at: " + currentUrl);
         driver.navigate().to("https://www.bigbang.ba/customer/account/login/");
-        System.out.println("We are redirected successfully to the login page : 'https://www.bigbang.ba/customer/account/login/'");
+        System.out.println("[AddressTest] Redirected to login page: " + driver.getCurrentUrl());
 
         Thread.sleep(6000);
-//        assertEquals("https://www.bigbang.ba/customer/address/index/", driver.getCurrentUrl(), "Failed to navigate to the address page!");
     }
+
     @Test
     @Order(3)
-    @Disabled
-    public void successfullyLogin()throws InterruptedException{
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-//
-//        WebElement promijeniButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("button.action.switch[data-action='customer-menu-toggle']")));
-//        promijeniButton.click();
-//
-//        WebElement odjaviSeButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[href='https://www.bigbang.ba/customer/account/logout/']")));
-//        odjaviSeButton.click();
-//
-//        driver.get("https://www.bigbang.ba/customer/account/login/");
-//        driver.manage().window().maximize();
-//        Thread.sleep(3000);
-//
-//        WebElement email = driver.findElement(By.cssSelector("input[type='email']"));
-//        email.sendKeys("emanhrustemovic6@gmail.com");
-//        Thread.sleep(3000);
-//
-//        WebElement password = driver.findElement(By.cssSelector("input[type='password']"));
-//        password.sendKeys("eman03hrustemovic04");
-//        password.submit();
-//        Thread.sleep(3000);
-//
-//        String message = "We have successfully logged into our account";
-//        String currentUrl = driver.getCurrentUrl();
-//        String expectedUrl ="https://www.bigbang.ba/customer/account/";
-//
-//        if (currentUrl.equals(expectedUrl)) {
-//            System.out.println("We have successfully logged into our account");
-//        } else {
-//            System.out.println("Failed to log in");
-//        }
+    @Story("Successful Login from Address Flow")
+    @Description("User can successfully log in using valid test data")
+    @Severity(SeverityLevel.CRITICAL)
+    public void successfullyLogin() {
+        System.out.println("[AddressTest] Starting successfullyLogin test");
+        TestUser user = TestDataFactory.validTestUser();
 
-        TestUser testUser = TestDataFactory.validTestUser();
+        System.out.println("[AddressTest] Opening login page");
+        LoginPage loginPage = new LoginPage(driver).open();
+        System.out.println("[AddressTest] Submitting login form for user: " + user.getEmail());
+        AccountPage accountPage = loginPage.login(user.getEmail(), user.getPassword());
 
-
-
+        System.out.println("[AddressTest] Verifying user is logged in; current URL: " + driver.getCurrentUrl());
+        assertTrue(accountPage.isLoggedIn(), "User should be logged into their account");
+        assertEquals("https://www.bigbang.ba/customer/account/", driver.getCurrentUrl(), "User should be on the account page after login");
+        System.out.println("[AddressTest] successfullyLogin test completed");
     }
 
 
     @Test
     @Order(2)
-    public void addressForAccount() throws InterruptedException {
+    @Story("Address book shows add button")
+    @Description("Verify that the 'Dodajte novu adresu' button is present in the address book")
+    @Severity(SeverityLevel.NORMAL)
+    public void addressBookHasAddNewAddressButton() {
+        System.out.println("[AddressTest] Starting addressBookHasAddNewAddressButton test");
         TestUser user = TestDataFactory.validTestUser();
 
-        // Login using the page objects, same approach as LoginTest
+        System.out.println("[AddressTest] Logging in as: " + user.getEmail());
         LoginPage loginPage = new LoginPage(driver).open();
         AccountPage accountPage = loginPage.login(user.getEmail(), user.getPassword());
 
+        System.out.println("[AddressTest] Verifying account page after login; current URL: " + driver.getCurrentUrl());
         assertTrue(accountPage.isLoggedIn(), "User should be logged in before managing addresses");
         assertEquals("https://www.bigbang.ba/customer/account/", driver.getCurrentUrl(), "Failed to navigate to the account page!");
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
-        // Navigate to address section from account page
+        System.out.println("[AddressTest] Navigating to address book");
         WebElement accAddress = wait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("//a[normalize-space()='Adresar']"))
         );
         accAddress.click();
 
-        WebElement addNewAddress = wait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("//span[normalize-space()='Dodajte novu adresu']"))
+        System.out.println("[AddressTest] Waiting for 'Dodajte novu adresu' button");
+        wait.until(
+                ExpectedConditions.elementToBeClickable(By.xpath("//button[@title='Dodajte novu adresu']"))
         );
-        addNewAddress.click();
+        System.out.println("[AddressTest] 'Dodajte novu adresu' button is present and clickable");
+    }
 
+    @Test
+    @Order(4)
+    @Story("User can add new address")
+    @Description("Navigate to new address form and successfully fill and submit it")
+    @Severity(SeverityLevel.CRITICAL)
+    public void addressForAccount() throws InterruptedException {
+        System.out.println("[AddressTest] Starting addressForAccount test");
+        TestUser user = TestDataFactory.validTestUser();
+
+        System.out.println("[AddressTest] Logging in as: " + user.getEmail());
+        LoginPage loginPage = new LoginPage(driver).open();
+        AccountPage accountPage = loginPage.login(user.getEmail(), user.getPassword());
+
+        System.out.println("[AddressTest] Verifying account page after login; current URL: " + driver.getCurrentUrl());
+        assertTrue(accountPage.isLoggedIn(), "User should be logged in before managing addresses");
+        assertEquals("https://www.bigbang.ba/customer/account/", driver.getCurrentUrl(), "Failed to navigate to the account page!");
+
+        accountPage.newAddressOpen();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+        System.out.println("[AddressTest] Waiting for new address page to load");
+        wait.until(ExpectedConditions.urlContains("/customer/address/new/"));
+
+
+        assertEquals("https://www.bigbang.ba/customer/address/new/", driver.getCurrentUrl(), "Failed to navigate to the new address page!");
+
+//
+//
         // Fill out the address form
+        System.out.println("[AddressTest] Filling address form");
         WebElement name = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("firstname")));
         name.clear();
         name.sendKeys(user.getFirstName());
@@ -124,11 +149,11 @@ public class AddressTest extends BaseTest {
 
         WebElement phone = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("telephone")));
         phone.clear();
-        phone.sendKeys("00387225883");
+        phone.sendKeys("061123456");
 
-        WebElement fax = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fax")));
-        fax.clear();
-        fax.sendKeys("as15d56d89d8");
+//        WebElement fax = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fax")));
+//        fax.clear();
+//        fax.sendKeys("as15d56d89d8");
 
         WebElement address = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("street_1")));
         address.clear();
@@ -144,14 +169,22 @@ public class AddressTest extends BaseTest {
 //        postalNumber.clear();
 //        postalNumber.sendKeys("756962");
 
+
+        System.out.println("[AddressTest] Submitting address form");
+        Thread.sleep(5000);
+//        WebElement element = driver.findElement(By.xpath("button[data-action='save-address']"));
+//        WebElement elementCss = driver.findElement(By.cssSelector("button[title='Spremanje adrese']"));
+//        WebElement submitButtonA = accountPage.waitForElementToBeVisible(By.xpath("//button[@data-action='save-address']"));
         WebElement submitButton = wait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"form-validate\"]/div/div[1]/button"))
+                ExpectedConditions.elementToBeClickable(By.xpath("//button[@title='Spremanje adrese']"))
         );
         submitButton.click();
 
         // Verify success using URL wait instead of Thread.sleep
+        System.out.println("[AddressTest] Waiting for address index page");
         wait.until(ExpectedConditions.urlContains("/customer/address/index/"));
         assertEquals("https://www.bigbang.ba/customer/address/index/", driver.getCurrentUrl(), "Failed to navigate to the address page!");
+        System.out.println("[AddressTest] addressForAccount test completed");
     }
 
 }

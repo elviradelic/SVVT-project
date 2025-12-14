@@ -2,6 +2,7 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class AccountPage extends BasePage {
 
@@ -63,5 +64,13 @@ public class AccountPage extends BasePage {
         waitForUrl("https://www.bigbang.ba/");
 
         return new LoginPage(driver).open();
+    }
+
+    public void newAddressOpen() {
+        driver.get(BASE_URL +  "/customer/address/new/");
+    }
+
+    public WebElement waitForElementToBeVisible(By locator) {
+        return waitForVisibility(locator, 10);
     }
 }
