@@ -15,11 +15,23 @@ public class ContactFormTests extends BaseTest {
 
     private ContactPage contactPage;
 
+    private void pause(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
-
-    @BeforeEach
+    @BeforeAll
     public void openContactPage() {
+        pause(2000); // brief pause between tests
         contactPage = new ContactPage(driver).open();
+    }
+
+    @AfterEach
+    public void delayBetweenTests() {
+        pause(1000); // brief pause between tests
     }
 
     @Test
