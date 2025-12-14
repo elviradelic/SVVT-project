@@ -46,6 +46,15 @@ public abstract class BaseTest {
         chromeOptions.addArguments("--no-sandbox");
         chromeOptions.addArguments("--disable-dev-shm-usage");
 
+
+        // IMPORTANT: disable password manager / save-creds / autofill popups
+        chromeOptions.setExperimentalOption("prefs", java.util.Map.of(
+                "credentials_enable_service", false,
+                "profile.password_manager_enabled", false,
+                "autofill.profile_enabled", false,
+                "autofill.credit_card_enabled", false
+        ));
+
         // WebDriverManager can be used here instead of manual driver path
         driver = new ChromeDriver(chromeOptions);
         driver.manage().window().setSize(new Dimension(1920, 1080));
