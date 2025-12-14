@@ -4,13 +4,17 @@ import TestBase.Factory.TestUser;
 import io.qameta.allure.*;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.AccountPage;
+import pages.LoginPage;
 
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Epic("E-Commerce")
 @Feature("Shopping Cart")
@@ -86,76 +90,68 @@ public class AddressTest extends BaseTest {
 
     @Test
     @Order(2)
-    @Disabled
     public void addressForAccount() throws InterruptedException {
-        driver.get("https://www.bigbang.ba/customer/account/login/");
-        //driver.manage().window().maximize();
-        Thread.sleep(3000);
+        TestUser user = TestDataFactory.validTestUser();
 
-        // Log in
-        WebElement email = driver.findElement(By.cssSelector("input[type='email']"));
-        email.sendKeys("emanhrustemovic6@gmail.com");
-        Thread.sleep(3000);
+        // Login using the page objects, same approach as LoginTest
+        LoginPage loginPage = new LoginPage(driver).open();
+        AccountPage accountPage = loginPage.login(user.getEmail(), user.getPassword());
 
-        WebElement password = driver.findElement(By.id("pass"));
-        password.sendKeys("eman03hrustemovic04");
-        password.submit();
-        Thread.sleep(2000);
+        assertTrue(accountPage.isLoggedIn(), "User should be logged in before managing addresses");
+        assertEquals("https://www.bigbang.ba/customer/account/", driver.getCurrentUrl(), "Failed to navigate to the account page!");
 
-        // Navigate to account page
-        driver.navigate().to("https://www.bigbang.ba/customer/account/");
-        String currentUrl = driver.getCurrentUrl();
-        assertEquals("https://www.bigbang.ba/customer/account/", currentUrl, "Failed to navigate to the account page!");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        // Click on address section
-        WebElement accAddress = driver.findElement(By.xpath("//*[@id=\"maincontent\"]/div[2]/div[1]/div[4]/div[1]/a"));
+        // Navigate to address section from account page
+        WebElement accAddress = wait.until(
+                ExpectedConditions.elementToBeClickable(By.xpath("//a[normalize-space()='Adresar']"))
+        );
         accAddress.click();
-        Thread.sleep(4000);
 
-        WebElement addNewAddress =driver.findElement(By.xpath("//*[@id=\"maincontent\"]/div[2]/div[1]/div[5]/div[1]/button"));
+        WebElement addNewAddress = wait.until(
+                ExpectedConditions.elementToBeClickable(By.xpath("//span[normalize-space()='Dodajte novu adresu']"))
+        );
         addNewAddress.click();
-        Thread.sleep(4000);
 
         // Fill out the address form
-        WebElement name = driver.findElement(By.id("firstname"));
+        WebElement name = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("firstname")));
         name.clear();
-        name.sendKeys("Arnela");
+        name.sendKeys(user.getFirstName());
 
-        WebElement lastname = driver.findElement(By.id("lastname"));
+        WebElement lastname = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lastname")));
         lastname.clear();
-        lastname.sendKeys("Sokolić");
+        lastname.sendKeys(user.getLastName());
 
-        WebElement phone = driver.findElement(By.id("telephone")); // Correct XPath for phone
+        WebElement phone = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("telephone")));
         phone.clear();
         phone.sendKeys("00387225883");
-        Thread.sleep(7000);
 
-
-        WebElement fax = driver.findElement(By.id("fax"));
+        WebElement fax = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fax")));
         fax.clear();
         fax.sendKeys("as15d56d89d8");
 
-        WebElement address = driver.findElement(By.id("street_1"));
+        WebElement address = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("street_1")));
         address.clear();
         address.sendKeys("Francuske revolucije, Ilidža");
 
-        WebElement city = driver.findElement(By.id("city"));
+        WebElement city = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("city")));
         city.clear();
         city.sendKeys("Sarajevo");
+        Thread.sleep(1000);
+        city.sendKeys(Keys.ENTER);
 
-        WebElement postalNumber = driver.findElement(By.id("zip"));
-        postalNumber.clear();
-        postalNumber.sendKeys("756962");
+//        WebElement postalNumber = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("zip")));
+//        postalNumber.clear();
+//        postalNumber.sendKeys("756962");
 
-        WebElement submitButton = driver.findElement(By.xpath("//*[@id=\"form-validate\"]/div/div[1]/button"));
+        WebElement submitButton = wait.until(
+                ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"form-validate\"]/div/div[1]/button"))
+        );
         submitButton.click();
 
-        // Verify success
-        Thread.sleep(3000); // Wait for redirection or address update
-        String currentUrl1 = driver.getCurrentUrl();
-        assertEquals("https://www.bigbang.ba/customer/address/index/", currentUrl1, "Failed to navigate to the address page!");
-
-        System.out.println("Address successfully added!");
+        // Verify success using URL wait instead of Thread.sleep
+        wait.until(ExpectedConditions.urlContains("/customer/address/index/"));
+        assertEquals("https://www.bigbang.ba/customer/address/index/", driver.getCurrentUrl(), "Failed to navigate to the address page!");
     }
 
 }
