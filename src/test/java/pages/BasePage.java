@@ -13,7 +13,7 @@ package pages;
          protected WebDriver driver;
          protected WebDriverWait wait;
 
-         protected static final String BASE_URL = "https://www.bigbang.ba";
+         public  static final String BASE_URL = "https://www.bigbang.ba";
 
          public BasePage(WebDriver driver) {
              this.driver = driver;
