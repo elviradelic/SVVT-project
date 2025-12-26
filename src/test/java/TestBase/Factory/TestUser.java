@@ -32,10 +32,10 @@ public class TestUser {
 
     @NoArgsConstructor
     public static class Builder {
-        private String email = "emanhrustemovic6@gmail.com";
-        private String password = "eman03hrustemovic04";
-        private String firstName = "Test";
-        private String lastName = "User";
+        private String email = "azaria.anyelo@minuteafter.com";
+        private String password = "bgbng25Sfr01";
+        private String firstName = "Azari";
+        private String lastName = "Any";
 
         public Builder setEmail(String email) {
             this.email = email;
