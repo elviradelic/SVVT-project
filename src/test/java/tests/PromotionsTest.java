@@ -20,7 +20,7 @@ public class PromotionsTest extends BaseTest {
     private WebDriverWait wait;
 
     private static final String PROMOTIONS_URL = BasePage.BASE_URL + "/promotions";
-    private static final String GAMING_PROMOTIONS_URL = PROMOTIONS_URL + "?cat=879";
+    private static final String GAMING_PROMOTIONS_URL = PROMOTIONS_URL + "?cat=7006";
     private static final String LEGO_PS4_URL = BasePage.BASE_URL + "/lego-2k-drive-ps4.html";
 
     @BeforeEach
@@ -53,9 +53,9 @@ public class PromotionsTest extends BaseTest {
                 By.cssSelector("a[href='" + GAMING_PROMOTIONS_URL + "']")));
         gamingLink.click();
 
-        wait.until(ExpectedConditions.urlContains("cat=879"));
+        wait.until(ExpectedConditions.urlContains("cat=7006"));
         String currentUrl = driver.getCurrentUrl();
-        assertTrue(currentUrl.contains("cat=879"),
+        assertTrue(currentUrl.contains("cat=7006"),
                 "Failed to filter gaming promotions. Actual URL: " + currentUrl);
     }
 
