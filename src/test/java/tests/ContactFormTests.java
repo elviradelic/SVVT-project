@@ -1,10 +1,9 @@
 package tests;
 
 import TestBase.BaseTest;
+import TestBase.Factory.TestDataFactory;
+import TestBase.Factory.TestUser;
 import org.junit.jupiter.api.*;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import pages.ContactPage;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,22 +15,34 @@ public class ContactFormTests extends BaseTest {
 
     private ContactPage contactPage;
 
+    private void pause(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
-
-    @BeforeEach
+    @BeforeAll
     public void openContactPage() {
-        // small delay between tests to reduce flakiness
-        pause(2000);
+        pause(2000); // brief pause between tests
         contactPage = new ContactPage(driver).open();
+    }
+
+    @AfterEach
+    public void delayBetweenTests() {
+        pause(1000); // brief pause between tests
     }
 
     @Test
     @Order(1)
     public void testValidFormSubmission() {
+        TestUser user = TestDataFactory.validTestUser();
+
         // Arrange & Act
         contactPage
-                .setName("Arnela Sokolić")
-                .setEmail("s.arnela21@gmail.com")
+                .setName(user.getFirstName() + " " + user.getLastName())
+                .setEmail(user.getEmail())
                 .setPhone("123456789")
                 .setMessage("This is a test message.")
                 .submit();
@@ -52,9 +63,11 @@ public class ContactFormTests extends BaseTest {
     @Test
     @Order(2)
     public void testMissingName() {
+        TestUser user = TestUser.builder().build();
+
         contactPage
                 .setName("")
-                .setEmail("s.arnela21@gmail.com")
+                .setEmail(user.getEmail())
                 .setPhone("123456789")
                 .setMessage("This is a test message.")
                 .submit();
@@ -70,8 +83,10 @@ public class ContactFormTests extends BaseTest {
     @Test
     @Order(3)
     public void testMissingEmail() {
+        TestUser user = TestUser.builder().build();
+
         contactPage
-                .setName("Arnela Sokolić")
+                .setName(user.getFirstName() + " " + user.getLastName())
                 .setEmail("")
                 .setPhone("123456789")
                 .setMessage("This is a test message.")
@@ -88,8 +103,10 @@ public class ContactFormTests extends BaseTest {
     @Test
     @Order(4)
     public void testInvalidEmail() {
+        TestUser user = TestUser.builder().build();
+
         contactPage
-                .setName("Arnela Sokolić")
+                .setName(user.getFirstName() + " " + user.getLastName())
                 .setEmail("invalid-email")
                 .setPhone("123456789")
                 .setMessage("This is a test message.")
@@ -106,9 +123,11 @@ public class ContactFormTests extends BaseTest {
     @Test
     @Order(5)
     public void testMissingMessage() {
+        TestUser user = TestUser.builder().build();
+
         contactPage
-                .setName("Arnela Sokolić")
-                .setEmail("s.arnela21@gmail.com")
+                .setName(user.getFirstName() + " " + user.getLastName())
+                .setEmail(user.getEmail())
                 .setPhone("123456789")
                 .setMessage("")
                 .submit();
@@ -147,9 +166,11 @@ public class ContactFormTests extends BaseTest {
     @Test
     @Order(7)
     public void emptyPhoneNumberField() {
+        TestUser user = TestUser.builder().build();
+
         contactPage
-                .setName("Arnela Sokolić")
-                .setEmail("s.arnela21@gmail.com")
+                .setName(user.getFirstName() + " " + user.getLastName())
+                .setEmail(user.getEmail())
                 .setPhone("")
                 .setMessage("This is a test message.")
                 .submit();
@@ -167,18 +188,4 @@ public class ContactFormTests extends BaseTest {
         assertTrue(phoneError == null || phoneError.isEmpty(), "No validation error expected for missing phone number.");
     }
 
-    @AfterAll
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
-    }
-
-    private void pause(int milliseconds) {
-        try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 }
