@@ -7,7 +7,9 @@ import org.openqa.selenium.WebElement;
 
 public class ContactPage extends BasePage {
 
+
     private static final String BASE_URL = "https://www.bigbang.ba";
+
 
     private final By nameInput = By.id("name");
     private final By emailInput = By.id("email");
